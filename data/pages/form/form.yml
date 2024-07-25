@@ -1,0 +1,10 @@
+name: form
+title: Form
+
+device:
+  mobile:
+    - form.html
+  tablet:
+    - form.html
+  desktop:
+    - form.html

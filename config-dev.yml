@@ -1,0 +1,33 @@
+port: 8678
+
+favicon: "favicon.ico"
+title: "Aigner"
+showservererror: true
+
+database:
+  server: "<your database server>"
+  name: "<your database name>"
+  username: "<your database username>"
+  password: "<your database password>"
+
+cookie: 
+  persist: true
+  secure: false
+  lifetime: 24
+  samesite: lax
+  path: /evoucher/
+
+template:
+  cached: false
+  dir: "data/template/evoucher"  
+  options:
+  - missingkey=error
+
+application:
+  pagedir: "data/pages"
+  contentdir: "data/content"
+
+hittest: false
+
+logging:
+  enabled: true

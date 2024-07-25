@@ -1,0 +1,29 @@
+{{define "layoutdasar"}}<!doctype html>
+<html>
+	<head>
+		<title>{{.Title}}</title>
+		<base href="{{.Setup.BaseUrl}}">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<link rel="icon" href="favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="template/layout.css">
+		<link rel="stylesheet" href="template/dwform.css">
+	</head>
+	<body>
+		<div style="padding: 10px;">
+
+			{{block "pageheader" .}}
+			{{end}}
+
+			<div id="pagecontent">
+			{{block "pagecontent" .}}
+			{{end}}
+			</div>
+
+			{{block "pagefooter" .}}
+			{{end}}
+
+		</div>
+
+	</body>
+</html>{{end}}
