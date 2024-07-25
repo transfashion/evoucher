@@ -1,0 +1,10 @@
+name: result
+title: Result
+
+device:
+  mobile:
+    - result.html
+  tablet:
+    - result.html
+  desktop:
+    - result.html

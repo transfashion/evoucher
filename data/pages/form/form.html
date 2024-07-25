@@ -4,8 +4,14 @@
 	<h1>Request Voucher</h1> 
 	<form method="post">
 		<input type="hidden" name="csrf_token" value="{{.CsrfToken}}">
-		<div id="evoucher-email" class="dw-input-textbox simple-textbox">
-			<input type="text" id="name" name="name" onkeyup="this.setAttribute('value', this.value);" value="" maxlength="20">					
+
+		<div id="evoucher-phone" class="dw-input-textbox simple-textbox" disabled>
+			<input type="text" id="phone" name="phone" onkeyup="this.setAttribute('value', this.value);" value="{{.Data.PhoneNumber}}" maxlength="20" readonly disabled>					
+			<label for="phone">Phone Number</label>
+		</div>
+
+		<div id="evoucher-name" class="dw-input-textbox simple-textbox">
+			<input type="text" id="name" name="name" onkeyup="this.setAttribute('value', this.value);" value="{{.Data.Name}}" maxlength="20">					
 			<label for="name">Your Name</label>
 		</div>
 
@@ -14,21 +20,29 @@
 				Gender
 			</div>
 			<label>Men
-				<input type="radio" name="radio">
+				<input type="radio" name="gender" value="M" {{if eq .Data.Gender "M"}}checked{{end}}>
 				<span class="checkmark"></span>
 			</label>
 			<label>Women
-				<input type="radio" name="radio">
+				<input type="radio" name="gender" value="F" {{if eq .Data.Gender "F"}}checked{{end}}>
 				<span class="checkmark"></span>
 			</label>
 		</div>
-		
+		{{if .Data.GenderInvalid}}
+		<span class="form-input-error">Silahkan isi dahulu data gender anda</span>
+		{{end}}
+
 		<div style="margin-top: 20px;">Get Code from cashier</div>
 		<div id="evoucher-code" class="dw-input-textbox simple-textbox" style="width: 200px; margin-top: 0;">
-			<input type="text" id="name" name="name" onkeyup="this.setAttribute('value', this.value);" value="" maxlength="6">					
-			<label for="name">Code</label>
-		</div>		
-		<input class="button-black" type="submit" value="submit">
-		
+			<input type="text" id="name" name="code" onkeyup="this.setAttribute('value', this.value);" value="{{.Data.Code}}" maxlength="6">					
+			<label for="code">Code</label>
+		</div>
+		{{if .Data.CodeInvalid }}
+		<span class="form-input-error">Code harus diisi. Silakan minta kode aktifasi voucher ke kasir</span>
+		{{end}}
+
+		<div style="margin-top: 20px">
+			<input class="button-black" type="submit" value="submit">
+		</div>
 	</form>
 {{end}}

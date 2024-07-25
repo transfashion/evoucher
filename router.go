@@ -23,12 +23,16 @@ func Router(mux *chi.Mux) error {
 
 	hnd := handlers.New(appsmodel.GetWebservice())
 	fgweb.Get(mux, "/", hnd.Home)
+
 	fgweb.Get(mux, "/form", hnd.Form)
-	fgweb.Post(mux, "/form", hnd.FormPost)
+	fgweb.Post(mux, "/form", hnd.Form)
+
+	fgweb.Get(mux, "/result", hnd.Result)
 
 	api := apis.New(appsmodel.GetWebservice())
 	fgweb.Post(mux, "/api/promoter", api.Promoter)
 	fgweb.Post(mux, "/api/search", api.Search)
+	fgweb.Post(mux, "/api/requestvoucher", api.RequestVoucher)
 
 	return nil
 }

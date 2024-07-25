@@ -31,3 +31,7 @@ body {
 	margin-top: 20px;
 	margin-bottom: 10px;
 }
+
+.form-input-error {
+	color: #f00;
+}

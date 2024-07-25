@@ -31,3 +31,12 @@ hittest: false
 
 logging:
   enabled: true
+
+
+qiscus:
+  baseurl: 
+  appcode: 
+  secret: 
+  sender: 
+
+
