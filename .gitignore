@@ -24,3 +24,6 @@ go.work.sum
 
 runtest.sh
 config-test.yml
+
+runlocal.sh
+config-local.yml

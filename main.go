@@ -8,6 +8,10 @@ import (
 
 	"github.com/fgtago/fgweb"
 	"github.com/go-chi/chi/v5"
+	"github.com/transfashion/evoucher/custdb"
+	"github.com/transfashion/evoucher/models"
+	"github.com/transfashion/evoucher/qiscus"
+	"gopkg.in/yaml.v3"
 )
 
 func main() {
@@ -33,6 +37,27 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+
+	// extended config
+	cfgcontent := *fgweb.GetCfgContent()
+	appcfg := &models.ApplicationConfig{}
+	err = yaml.Unmarshal(cfgcontent, appcfg)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	ws.ApplicationConfig = appcfg
+
+	// setup application data
+	ws.ApplicationData = &models.ApplicationData{
+		Qiscus: &qiscus.Qiscus{
+			BaseUrl: appcfg.QiscusConfig.BaseUrl,
+			AppCode: appcfg.QiscusConfig.AppCode,
+			Secret:  appcfg.QiscusConfig.Secret,
+			Sender:  appcfg.QiscusConfig.Sender,
+		},
+		CustomerDb: custdb.NewCustomerDB(),
 	}
 
 	// jalankan service webserver

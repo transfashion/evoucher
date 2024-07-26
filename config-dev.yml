@@ -34,9 +34,10 @@ logging:
 
 
 qiscus:
-  baseurl: 
-  appcode: 
-  secret: 
-  sender: 
+  baseurl: baseurl
+  appcode:  appcode
+  secret: secret
+  sender: sender
 
-
+evoucher:
+  url: http://localhost:8678
