@@ -8,19 +8,16 @@ import (
 
 	"github.com/fgtago/fgweb/appsmodel"
 	"github.com/fgtago/fgweb/defaulthandlers"
+	"github.com/transfashion/evoucher/models"
 )
 
-type UrlQueryVoucher struct {
-	RoomId      string `json:"room_id"`
-	PhoneNumber string `json:"phone_number"`
-	Name        string `json:"name"`
-}
-
 type FormPageData struct {
+	RequestId   string
 	PhoneNumber string
 	Name        string
 	Gender      string
 	Code        string
+	RoomId      string
 
 	GenderInvalid bool
 	CodeInvalid   bool
@@ -38,15 +35,20 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var urlq UrlQueryVoucher
+	var urlq models.FormUrlQuery
 	err = json.Unmarshal(query, &urlq)
 	if err != nil {
 		fmt.Fprintln(w, err)
 		return
 	}
 
+	// cek apakah kode request ini telah dipakai
+	// libs.VoucherDb.CreateVoucherRequest()
+
 	data := &FormPageData{
-		PhoneNumber: urlq.PhoneNumber,
+		RequestId:   urlq.RequestId,
+		RoomId:      urlq.RoomId,
+		PhoneNumber: urlq.Number,
 		Name:        urlq.Name,
 	}
 
@@ -57,11 +59,15 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 		name := r.FormValue("name")
 		gender := r.FormValue("gender")
 		code := r.FormValue("code")
+		room_id := r.FormValue("room_id")
+		request_id := r.FormValue("request_id")
 
 		data.Name = name
 		data.PhoneNumber = phone
 		data.Gender = gender
 		data.Code = code
+		data.RoomId = room_id
+		data.RequestId = request_id
 
 		if code == "" {
 			invalid = invalid || true
@@ -78,9 +84,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 
 			// 	// redirect
 			basehref := r.Header.Get("BASE_HREF")
-			fmt.Println(basehref)
 			nexturl := fmt.Sprintf("%sresult", basehref)
-			fmt.Println(nexturl)
 			http.Redirect(w, r, nexturl, http.StatusSeeOther)
 		}
 
@@ -89,10 +93,3 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 	pv.Data = data
 	defaulthandlers.SimplePageHandler(pv, w, r)
 }
-
-// func (hdr *Handler) FormPost(w http.ResponseWriter, r *http.Request) {
-// 	ctx := r.Context()
-// 	pv := ctx.Value(appsmodel.PageVariableKeyName).(*appsmodel.PageVariable)
-// 	pv.PageName = "form"
-// 	defaulthandlers.SimplePageHandler(pv, w, r)
-// }

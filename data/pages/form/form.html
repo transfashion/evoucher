@@ -1,9 +1,11 @@
 {{template "layoutdasar" .}}
 
 {{define "pagecontent"}}
-	<h1>Request Voucher</h1> 
+	<h1>Voucher Activation</h1> 
 	<form method="post">
 		<input type="hidden" name="csrf_token" value="{{.CsrfToken}}">
+		<input type="hidden" name="request_id" value="{{.Data.RequestId}}">
+		<input type="hidden" name="room_id" value="{{.Data.RoomId}}">
 
 		<div id="evoucher-phone" class="dw-input-textbox simple-textbox" disabled>
 			<input type="text" id="phone" name="phone" onkeyup="this.setAttribute('value', this.value);" value="{{.Data.PhoneNumber}}" maxlength="20" readonly disabled>					
@@ -34,7 +36,7 @@
 
 		<div style="margin-top: 20px;">Get Code from cashier</div>
 		<div id="evoucher-code" class="dw-input-textbox simple-textbox" style="width: 200px; margin-top: 0;">
-			<input type="text" id="name" name="code" onkeyup="this.setAttribute('value', this.value);" value="{{.Data.Code}}" maxlength="6">					
+			<input type="text" id="name" name="code" onkeyup="this.setAttribute('value', this.value);" value="{{.Data.Code}}" maxlength="6" inputmode="numeric">					
 			<label for="code">Code</label>
 		</div>
 		{{if .Data.CodeInvalid }}

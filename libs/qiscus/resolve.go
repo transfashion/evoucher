@@ -8,9 +8,9 @@ import (
 )
 
 func (q *Qiscus) Resolve(room_id string) error {
-	baseurl := q.BaseUrl
-	appcode := q.AppCode
-	secret := q.Secret
+	baseurl := q.Config.BaseUrl
+	appcode := q.Config.AppCode
+	secret := q.Config.Secret
 
 	url := fmt.Sprintf("%s/api/v1/admin/service/mark_as_resolved", baseurl)
 	method := "POST"
@@ -38,10 +38,11 @@ func (q *Qiscus) Resolve(room_id string) error {
 	}
 	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
+	// body, err := io.ReadAll(res.Body)
+	_, err = io.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(body))
+
 	return nil
 }

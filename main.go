@@ -8,9 +8,8 @@ import (
 
 	"github.com/fgtago/fgweb"
 	"github.com/go-chi/chi/v5"
-	"github.com/transfashion/evoucher/custdb"
+	"github.com/transfashion/evoucher/libs"
 	"github.com/transfashion/evoucher/models"
-	"github.com/transfashion/evoucher/qiscus"
 	"gopkg.in/yaml.v3"
 )
 
@@ -49,16 +48,8 @@ func main() {
 	}
 	ws.ApplicationConfig = appcfg
 
-	// setup application data
-	ws.ApplicationData = &models.ApplicationData{
-		Qiscus: &qiscus.Qiscus{
-			BaseUrl: appcfg.QiscusConfig.BaseUrl,
-			AppCode: appcfg.QiscusConfig.AppCode,
-			Secret:  appcfg.QiscusConfig.Secret,
-			Sender:  appcfg.QiscusConfig.Sender,
-		},
-		CustomerDb: custdb.NewCustomerDB(),
-	}
+	// load libraries
+	libs.Load(ws)
 
 	// jalankan service webserver
 	port := ws.Configuration.Port

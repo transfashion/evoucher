@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-func (q *Qiscus) SendMessage(chat *Chat, message string) error {
-	baseurl := q.BaseUrl
-	appcode := q.AppCode
-	sender := q.Sender
+func (q *Qiscus) SendMessage(room_id string, message string) error {
+	baseurl := q.Config.BaseUrl
+	appcode := q.Config.AppCode
+	sender := q.Config.Sender
 	url := fmt.Sprintf("%s/%s/bot", baseurl, appcode)
 	method := "POST"
 
@@ -19,11 +19,7 @@ func (q *Qiscus) SendMessage(chat *Chat, message string) error {
 		"type": "text",
 		"room_id": "%s",
 		"message": "%s"
-	}`, sender, chat.RoomId, message)
-
-	fmt.Println("sending message")
-	fmt.Println(url)
-	fmt.Println(data)
+	}`, sender, room_id, message)
 
 	payload := strings.NewReader(data)
 
@@ -34,7 +30,7 @@ func (q *Qiscus) SendMessage(chat *Chat, message string) error {
 		return err
 	}
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("QISCUS_SDK_SECRET", q.Secret)
+	req.Header.Add("QISCUS_SDK_SECRET", q.Config.Secret)
 
 	res, err := client.Do(req)
 	if err != nil {
