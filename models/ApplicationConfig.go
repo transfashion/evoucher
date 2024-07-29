@@ -10,4 +10,12 @@ type ApplicationConfig struct {
 	Evoucher struct {
 		Url string `yaml:"url"`
 	} `yaml:"evoucher"`
+	Kalista struct {
+		Database struct {
+			Server   string `yaml:"server"`
+			Name     string `yaml:"name"`
+			Username string `yaml:"username"`
+			Password string `yaml:"password"`
+		} `yaml:"database"`
+	} `yaml:"kalista"`
 }

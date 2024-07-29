@@ -25,7 +25,13 @@ func Load(w *appsmodel.Webservice) {
 		Sender:  appcfg.QiscusConfig.Sender,
 	})
 
-	CustomerDb = custdb.NewCustomerDB()
+	CustomerDb = custdb.NewCustomerDB(&custdb.DatabaseConfig{
+		Server:   appcfg.Kalista.Database.Server,
+		Name:     appcfg.Kalista.Database.Name,
+		Username: appcfg.Kalista.Database.Username,
+		Password: appcfg.Kalista.Database.Password,
+	})
+
 	VoucherDb = voucher.NewVoucherDB()
 
 }

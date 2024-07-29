@@ -39,5 +39,12 @@ qiscus:
   secret: secret
   sender: sender
 
+kalista:
+  database:
+    server: "localhost"
+    name: "kalistadblocal"
+    username: "root"
+    password: ""  
+
 evoucher:
   url: http://localhost:8678
