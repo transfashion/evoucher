@@ -1,16 +1,14 @@
 package apis
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/transfashion/evoucher/libs"
 	"github.com/transfashion/evoucher/libs/custdb"
-	"github.com/transfashion/evoucher/libs/uniqid"
-	"github.com/transfashion/evoucher/models"
 )
 
 type RequestVoucherPayload struct {
@@ -21,6 +19,8 @@ type RequestVoucherPayload struct {
 	Intent      string `json:"intent"`
 }
 
+const _VOUCHER_PROMO_INTENT_ = "#VoucherPromoTransfashion"
+
 func (api *Api) RequestVoucher(w http.ResponseWriter, r *http.Request) {
 	payload := RequestVoucherPayload{}
 	err := json.NewDecoder(r.Body).Decode(&payload)
@@ -29,9 +29,10 @@ func (api *Api) RequestVoucher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if payload.Intent == "#VoucherPromoTransfashion" {
-		ws := api.Webservice
-		appconf := ws.ApplicationConfig.(*models.ApplicationConfig)
+	log.Println("Voucher Request hit")
+	if payload.Intent == _VOUCHER_PROMO_INTENT_ {
+		//ws := api.Webservice
+		//appconf := ws.ApplicationConfig.(*models.ApplicationConfig)
 
 		cdb := libs.CustomerDb
 		qcs := libs.Qiscus
@@ -39,48 +40,83 @@ func (api *Api) RequestVoucher(w http.ResponseWriter, r *http.Request) {
 
 		var exist bool
 		var cust *custdb.Customer
+		log.Println("get customer with phone number", payload.PhoneNumber)
 		exist, cust, err = cdb.GetCustomer(payload.PhoneNumber)
 		if err != nil {
-			fmt.Println(err)
+			RequestVoucherError(w, r, payload, err)
+			return
 		}
 
 		fromname := strings.ToValidUTF8(payload.FromName, "")
 		if !exist {
-			cdb.CreateNew(payload.PhoneNumber, fromname)
+			log.Println("Customer", payload.PhoneNumber, "not found")
+			log.Println("create new customer with phone number", payload.PhoneNumber)
+			cust, err = cdb.CreateNew(payload.PhoneNumber, fromname)
+			if err != nil {
+				RequestVoucherError(w, r, payload, err)
+				return
+			}
+
+		} else {
+			log.Println("Customer found: ", cust.Name)
 		}
 
 		/* parse message */
-		vdb.ParseMessage(payload.Message)
-
-		query := models.FormUrlQuery{
-			RequestId: uniqid.New(uniqid.Params{}),
-			RoomId:    payload.RoomId,
-			Number:    payload.PhoneNumber,
-			Name:      payload.FromName,
-			Batch:     "evoucher",
-		}
-
-		if !exist {
-			cdb.CreateNew(payload.PhoneNumber, payload.FromName)
-		} else {
-			query.Name = cust.Name
-		}
-
-		b, err := json.Marshal(query)
-		if err != nil {
-			fmt.Println(err)
+		log.Println("Parse message")
+		msgi := vdb.ParseMessage(payload.Message)
+		if msgi == nil {
+			RequestVoucherError(w, r, payload, fmt.Errorf("format request voucher tidak sesuai"))
 			return
 		}
 
-		q := base64.StdEncoding.EncodeToString(b)
-		link := fmt.Sprintf("%s/form?q=%s", appconf.Evoucher.Url, q)
-		fmt.Println(link)
-
-		msg := fmt.Sprintf("Halo %s, kamu mendapatkan voucher promo dari *Trans Fashion Indonesia*. Untuk aktifasi voucher, silahkan klik link berikut: %s/form?q=%s", payload.FromName, appconf.Evoucher.Url, q)
-		err = qcs.SendMessage(payload.RoomId, msg)
-		if err != nil {
-			fmt.Println(err)
+		if msgi.Ref == "" {
+			RequestVoucherError(w, r, payload, fmt.Errorf("voucher batchcode not found"))
+			return
 		}
+
+		/* masukkan request voucher ke database */
+		log.Println("Create request voucher", msgi.Ref, cust.PhoneNumber)
+		reqid, err := cdb.CreateRequest(&custdb.RequestData{
+			Customer: cust,
+			RoomId:   payload.RoomId,
+			Ref:      msgi.Ref,
+			Intent:   payload.Intent,
+		})
+		if err != nil {
+			RequestVoucherError(w, r, payload, err)
+			return
+		}
+
+		log.Println("reqid", reqid)
+		/*
+			query := models.FormUrlQuery{
+				RequestId: uniqid.New(uniqid.Params{}),
+				RoomId:    payload.RoomId,
+				Number:    payload.PhoneNumber,
+				Name:      payload.FromName,
+				Batch:     "batch",
+			}
+
+			b, err := json.Marshal(query)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			q := base64.StdEncoding.EncodeToString(b)
+			link := fmt.Sprintf("%s/form?q=%s", appconf.Evoucher.Url, q)
+			log.Println(link)
+
+		*/
+
+		qcs.InternalHitTest()
+		/*
+			msg := fmt.Sprintf("Halo %s, kamu mendapatkan voucher promo dari *Trans Fashion Indonesia*. Untuk aktifasi voucher, silahkan klik link berikut: %s/form?q=%s", payload.FromName, appconf.Evoucher.Url, q)
+			err = qcs.SendMessage(payload.RoomId, msg)
+			if err != nil {
+				fmt.Println(err)
+			}
+		*/
 		// data := ""
 
 	}
@@ -88,4 +124,12 @@ func (api *Api) RequestVoucher(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("{\"success\": true}"))
+}
+
+func RequestVoucherError(w http.ResponseWriter, r *http.Request, payload RequestVoucherPayload, err error) {
+	log.Println(err.Error())
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte("{\"success\": false, \"error\": \"" + err.Error() + "\"}"))
 }

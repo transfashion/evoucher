@@ -13,6 +13,7 @@ type CustomerDB struct {
 type Customer struct {
 	PhoneNumber string
 	Name        string
+	Gender      string
 }
 
 func NewCustomerDB(conn *sql.DB) *CustomerDB {

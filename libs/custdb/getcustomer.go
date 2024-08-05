@@ -1,12 +1,18 @@
 package custdb
 
+import (
+	"database/sql"
+)
+
 func (c *CustomerDB) GetCustomer(phonenumber string) (bool, *Customer, error) {
 
 	var customer Customer
-	err := c.Connection.QueryRow("SELECT phonenumber, name FROM customers WHERE phonenumber = ?", phonenumber).Scan(&customer.PhoneNumber, &customer.Name)
-	if err != nil {
+	row := c.Connection.QueryRow("SELECT custwa_id, custwa_name, custwa_gender FROM mst_custwa WHERE custwa_id = ?", phonenumber)
+	err := row.Scan(&customer.PhoneNumber, &customer.Name, &customer.Gender)
+	if err == sql.ErrNoRows {
+		return false, nil, nil
+	} else if err != nil {
 		return false, nil, err
 	}
-
-	return false, nil, nil
+	return true, &customer, nil
 }

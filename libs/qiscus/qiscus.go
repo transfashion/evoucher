@@ -16,3 +16,7 @@ func NewQiscus(cfg *QiscusConfig) *Qiscus {
 		Config: cfg,
 	}
 }
+
+func (q *Qiscus) InternalHitTest() {
+
+}

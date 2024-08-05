@@ -1,20 +1,23 @@
 package voucher
 
 import (
-	"fmt"
 	"regexp"
 )
 
-type VoucherMessageIntent struct{}
+type VoucherMessageIntent struct {
+	Ref string
+}
 
 func (v *VoucherDB) ParseMessage(msg string) *VoucherMessageIntent {
-	regex := regexp.MustCompile(`#\w+`)
-	matches := regex.FindAllString(msg, -1)
 
-	// regex := regexp.MustCompile(`\[(.*?)\]`)
-	// matches := regex.FindAllStringSubmatch(text, -1)
-
-	fmt.Println(matches)
-
-	return nil
+	regex := regexp.MustCompile(`\[ref:(.*?)\]`)
+	matches := regex.FindStringSubmatch(msg)
+	if len(matches) > 1 {
+		ref := matches[1]
+		return &VoucherMessageIntent{
+			Ref: ref,
+		}
+	} else {
+		return nil
+	}
 }
