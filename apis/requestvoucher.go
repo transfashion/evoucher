@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/transfashion/evoucher/libs"
 	"github.com/transfashion/evoucher/libs/custdb"
@@ -41,6 +42,11 @@ func (api *Api) RequestVoucher(w http.ResponseWriter, r *http.Request) {
 		exist, cust, err = cdb.GetCustomer(payload.PhoneNumber)
 		if err != nil {
 			fmt.Println(err)
+		}
+
+		fromname := strings.ToValidUTF8(payload.FromName, "")
+		if !exist {
+			cdb.CreateNew(payload.PhoneNumber, fromname)
 		}
 
 		/* parse message */

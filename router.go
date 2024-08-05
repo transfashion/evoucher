@@ -30,8 +30,6 @@ func Router(mux *chi.Mux) error {
 	fgweb.Get(mux, "/result", hnd.Result)
 
 	api := apis.New(appsmodel.GetWebservice())
-	fgweb.Post(mux, "/api/promoter", api.Promoter)
-	fgweb.Post(mux, "/api/search", api.Search)
 	fgweb.Post(mux, "/api/requestvoucher", api.RequestVoucher)
 
 	return nil

@@ -1,7 +1,13 @@
 package voucher
 
-type VoucherDB struct{}
+import "database/sql"
 
-func NewVoucherDB() *VoucherDB {
-	return &VoucherDB{}
+type VoucherDB struct {
+	Connection *sql.DB
+}
+
+func NewVoucherDB(conn *sql.DB) *VoucherDB {
+	return &VoucherDB{
+		Connection: conn,
+	}
 }

@@ -1,8 +1,11 @@
 package libs
 
 import (
+	"fmt"
+
 	"github.com/fgtago/fgweb/appsmodel"
 	"github.com/transfashion/evoucher/libs/custdb"
+	"github.com/transfashion/evoucher/libs/kalistadb"
 	"github.com/transfashion/evoucher/libs/qiscus"
 	"github.com/transfashion/evoucher/libs/voucher"
 	"github.com/transfashion/evoucher/models"
@@ -18,6 +21,16 @@ func Load(w *appsmodel.Webservice) {
 	ws = w
 	appcfg := ws.ApplicationConfig.(*models.ApplicationConfig)
 
+	err := kalistadb.ConnectDatabase(
+		appcfg.Kalista.Database.Server,
+		appcfg.Kalista.Database.Name,
+		appcfg.Kalista.Database.Username,
+		appcfg.Kalista.Database.Password)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Kalista Database Connected.")
+
 	Qiscus = qiscus.NewQiscus(&qiscus.QiscusConfig{
 		BaseUrl: appcfg.QiscusConfig.BaseUrl,
 		AppCode: appcfg.QiscusConfig.AppCode,
@@ -25,13 +38,7 @@ func Load(w *appsmodel.Webservice) {
 		Sender:  appcfg.QiscusConfig.Sender,
 	})
 
-	CustomerDb = custdb.NewCustomerDB(&custdb.DatabaseConfig{
-		Server:   appcfg.Kalista.Database.Server,
-		Name:     appcfg.Kalista.Database.Name,
-		Username: appcfg.Kalista.Database.Username,
-		Password: appcfg.Kalista.Database.Password,
-	})
-
-	VoucherDb = voucher.NewVoucherDB()
+	CustomerDb = custdb.NewCustomerDB(kalistadb.GetConnection())
+	VoucherDb = voucher.NewVoucherDB(kalistadb.GetConnection())
 
 }
