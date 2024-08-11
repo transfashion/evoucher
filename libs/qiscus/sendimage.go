@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (q *Qiscus) SendMessage(room_id string, message string) (string, error) {
+func (q *Qiscus) SendImage(room_id string, imagelink string, message string) (string, error) {
 	baseurl := q.Config.BaseUrl
 	appcode := q.Config.AppCode
 	sender := q.Config.Sender
@@ -17,11 +17,16 @@ func (q *Qiscus) SendMessage(room_id string, message string) (string, error) {
 
 	data := fmt.Sprintf(`{
 		"sender_email": "%s", 
-		"type": "text",
+		"message": "%s",
+		"type": "file_attachment",
 		"room_id": "%s",
-		"message": "%s"
-	}`, sender, room_id, message)
+		"payload": {
+			"url": "%s",
+			"caption": "%s"
+		}
+	}`, sender, message, room_id, imagelink, message)
 
+	log.Println(data)
 	payload := strings.NewReader(data)
 
 	client := &http.Client{}
@@ -43,6 +48,6 @@ func (q *Qiscus) SendMessage(room_id string, message string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	log.Println("result", string(body))
+	log.Println("result:", string(body))
 	return string(body), nil
 }

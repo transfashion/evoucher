@@ -9,6 +9,7 @@ import (
 
 	"github.com/transfashion/evoucher/libs"
 	"github.com/transfashion/evoucher/libs/custdb"
+	"github.com/transfashion/evoucher/models"
 )
 
 type RequestVoucherPayload struct {
@@ -31,8 +32,8 @@ func (api *Api) RequestVoucher(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Voucher Request hit")
 	if payload.Intent == _VOUCHER_PROMO_INTENT_ {
-		//ws := api.Webservice
-		//appconf := ws.ApplicationConfig.(*models.ApplicationConfig)
+		ws := api.Webservice
+		appconf := ws.ApplicationConfig.(*models.ApplicationConfig)
 
 		cdb := libs.CustomerDb
 		qcs := libs.Qiscus
@@ -69,55 +70,68 @@ func (api *Api) RequestVoucher(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if msgi.Ref == "" {
-			RequestVoucherError(w, r, payload, fmt.Errorf("voucher batchcode not found"))
+		if msgi.VoubatchId == "" {
+			RequestVoucherError(w, r, payload, fmt.Errorf("voucher batch code not found"))
 			return
 		}
 
-		/* masukkan request voucher ke database */
-		log.Println("Create request voucher", msgi.Ref, cust.PhoneNumber)
-		reqid, err := cdb.CreateRequest(&custdb.RequestData{
-			Customer: cust,
-			RoomId:   payload.RoomId,
-			Ref:      msgi.Ref,
-			Intent:   payload.Intent,
-		})
+		var reqid string
+
+		/* get pending request */
+		reqid, err = cdb.GetPendingRequest(cust, msgi.VoubatchId)
 		if err != nil {
 			RequestVoucherError(w, r, payload, err)
 			return
 		}
 
-		log.Println("reqid", reqid)
-		/*
-			query := models.FormUrlQuery{
-				RequestId: uniqid.New(uniqid.Params{}),
-				RoomId:    payload.RoomId,
-				Number:    payload.PhoneNumber,
-				Name:      payload.FromName,
-				Batch:     "batch",
-			}
-
-			b, err := json.Marshal(query)
+		if reqid == "" {
+			/* request baru, masukkan request voucher ke database */
+			log.Println("Create request voucher", msgi.VoubatchId, cust.PhoneNumber)
+			reqid, err = cdb.CreateRequest(&custdb.RequestData{
+				Customer:   cust,
+				RoomId:     payload.RoomId,
+				Intent:     payload.Intent,
+				Ref:        msgi.VoubatchId,
+				VoubatchId: msgi.VoubatchId,
+				Message:    payload.Message,
+				JsonData:   "{}",
+			})
 			if err != nil {
-				fmt.Println(err)
+				RequestVoucherError(w, r, payload, err)
 				return
 			}
+		}
 
-			q := base64.StdEncoding.EncodeToString(b)
-			link := fmt.Sprintf("%s/form?q=%s", appconf.Evoucher.Url, q)
-			log.Println(link)
+		// cek apakah msgi.VoubatchId masih berlaku
+		voubatch, err := vdb.GetVoucherBatch(msgi.VoubatchId)
+		if err != nil {
+			RequestVoucherError(w, r, payload, err)
+			return
+		}
 
-		*/
-
-		qcs.InternalHitTest()
-		/*
-			msg := fmt.Sprintf("Halo %s, kamu mendapatkan voucher promo dari *Trans Fashion Indonesia*. Untuk aktifasi voucher, silahkan klik link berikut: %s/form?q=%s", payload.FromName, appconf.Evoucher.Url, q)
-			err = qcs.SendMessage(payload.RoomId, msg)
-			if err != nil {
-				fmt.Println(err)
+		// verifikasi voucherbatch apakah valid:
+		// - apakah periode generate masih berlaku ?
+		// - dll
+		_, err = vdb.VerifyBatch(voubatch)
+		if err != nil {
+			RequestVoucherError(w, r, payload, err)
+			log.Println("sending message via qiscus")
+			_, errqcs := qcs.SendMessage(payload.RoomId, err.Error())
+			if errqcs != nil {
+				RequestVoucherError(w, r, payload, errqcs)
+				return
 			}
-		*/
-		// data := ""
+			log.Println("message sent")
+			return
+		}
+
+		/* kirimkan link form registrasi ke customer via qiscus */
+		link := fmt.Sprintf("%s/form?req=%s", appconf.Evoucher.Url, reqid)
+		msg := fmt.Sprintf("Halo %s, kamu mendapatkan voucher promo dari *Trans Fashion Indonesia*. Untuk aktifasi voucher, silahkan klik link berikut: %s", payload.FromName, link)
+		_, err = qcs.SendMessage(payload.RoomId, msg)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 	}
 

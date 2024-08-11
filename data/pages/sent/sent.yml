@@ -1,0 +1,10 @@
+name: sent
+title: Sent
+
+device:
+  mobile:
+    - sent.html
+  tablet:
+    - sent.html
+  desktop:
+    - sent.html

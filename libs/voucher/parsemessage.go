@@ -5,7 +5,7 @@ import (
 )
 
 type VoucherMessageIntent struct {
-	Ref string
+	VoubatchId string
 }
 
 func (v *VoucherDB) ParseMessage(msg string) *VoucherMessageIntent {
@@ -15,7 +15,7 @@ func (v *VoucherDB) ParseMessage(msg string) *VoucherMessageIntent {
 	if len(matches) > 1 {
 		ref := matches[1]
 		return &VoucherMessageIntent{
-			Ref: ref,
+			VoubatchId: ref,
 		}
 	} else {
 		return nil

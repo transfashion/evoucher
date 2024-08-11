@@ -3,8 +3,11 @@ module github.com/transfashion/evoucher
 go 1.22.4
 
 require (
+	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b
+	github.com/boombuler/barcode v1.0.2
+	github.com/dustin/go-humanize v1.0.1
 	github.com/fgtago/fgweb v1.2.1
-	github.com/go-chi/chi/v5 v5.0.12
+	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-sql-driver/mysql v1.8.1
 	gopkg.in/yaml.v3 v3.0.1
 )

@@ -7,17 +7,30 @@ import (
 )
 
 type RequestData struct {
-	Customer *Customer
-	RoomId   string
-	Ref      string
-	Intent   string
+	Customer   *Customer
+	Ref        string
+	RoomId     string
+	VoubatchId string
+	Intent     string
+	Message    string
+	JsonData   string
 }
 
-func (c *CustomerDB) CreateRequest(data *RequestData) (string, error) {
+func (c *CustomerDB) CreateRequest(req *RequestData) (string, error) {
 	uiq := uniqid.New(uniqid.Params{MoreEntropy: true})[:14]
 	reqid := addParity(uiq)
 
 	// simpan ke database
+	query := `
+		insert into mst_custwalinkreq
+		(custwalinkreq_id, ref, intent, room_id, message, data, voubatch_id, custwa_id, _createby)
+		values
+		(?, ?, ?, ?, ?, ?, ?, ?, '5effbb0a0f7d1')
+	`
+	_, err := c.Connection.Exec(query, reqid, req.Ref, req.Intent, req.RoomId, req.Message, req.JsonData, req.VoubatchId, req.Customer.PhoneNumber)
+	if err != nil {
+		return "", err
+	}
 
 	return reqid, nil
 }

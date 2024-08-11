@@ -1,0 +1,10 @@
+name: view
+title: View
+
+device:
+  mobile:
+    - view.html
+  tablet:
+    - view.html
+  desktop:
+    - view.html

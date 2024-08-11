@@ -34,13 +34,14 @@
 		<span class="form-input-error">Silahkan isi dahulu data gender anda</span>
 		{{end}}
 
-		<div style="margin-top: 20px;">Get Code from cashier</div>
+		<div style="margin-top: 20px;">Get 6 digit Code from cashier</div>
 		<div id="evoucher-code" class="dw-input-textbox simple-textbox" style="width: 200px; margin-top: 0;">
 			<input type="text" id="name" name="code" onkeyup="this.setAttribute('value', this.value);" value="{{.Data.Code}}" maxlength="6" inputmode="numeric">					
 			<label for="code">Code</label>
 		</div>
 		{{if .Data.CodeInvalid }}
-		<span class="form-input-error">Code harus diisi. Silakan minta kode aktifasi voucher ke kasir</span>
+		
+		<span class="form-input-error">{{ .Data.CodeInvalidMessage }}</span>
 		{{end}}
 
 		<div style="margin-top: 20px">
