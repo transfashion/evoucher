@@ -6,7 +6,8 @@ require (
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b
 	github.com/boombuler/barcode v1.0.2
 	github.com/dustin/go-humanize v1.0.1
-	github.com/fgtago/fgweb v1.2.1
+	github.com/fgtago/fgweb v1.2.2
+	github.com/foolin/go-resvg v0.1.0
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-sql-driver/mysql v1.8.1
 	gopkg.in/yaml.v3 v3.0.1
@@ -20,6 +21,5 @@ require (
 	github.com/alexedwards/scs/v2 v2.8.0 // indirect
 	github.com/houseme/mobiledetect v1.2.1 // indirect
 	github.com/justinas/nosurf v1.1.1 // indirect
+	github.com/ungerik/go-cairo v0.0.0-20240304075741-47de8851d267 // indirect
 )
-
-replace github.com/fgtago/fgweb v1.2.1 => ../../fgtago/fgweb

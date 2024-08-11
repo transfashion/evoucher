@@ -1,22 +1,17 @@
 services:
   evoucher:
     container_name: evoucher
-    image: golang_1_22
+    image: evoucher
     hostname: evoucher
+    build: .
     ports:
       - 8678:8678
     networks:
       - devnetwork 
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    volumes:
-      - ./..:/var/www/html:consistent
-
-    command: /var/www/html/runlocal.go
-    working_dir: /var/www/html
-    
-
-
+    restart: always
+ 
 networks:
   devnetwork:
     name: devnetwork

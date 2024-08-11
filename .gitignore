@@ -27,3 +27,6 @@ config-test.yml
 
 runlocal.sh
 config-local.yml
+
+runcontainer.sh
+config-container.yml

@@ -24,7 +24,7 @@ func Router(mux *chi.Mux) error {
 	hnd := handlers.New(appsmodel.GetWebservice())
 	fgweb.Get(mux, "/", hnd.Home)
 	fgweb.Get(mux, "/{vouid}/voucherqr.svg", hnd.VoucherQrSVG)
-	// fgweb.Get(mux, "/{vouid}/voucherqr.png", hnd.VoucherQrPNG)
+	fgweb.Get(mux, "/{vouid}/voucherqr.png", hnd.VoucherQrPNG)
 
 	fgweb.Get(mux, "/form", hnd.Form)
 	fgweb.Post(mux, "/form", hnd.Form)
