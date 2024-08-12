@@ -23,4 +23,4 @@ require (
 	github.com/justinas/nosurf v1.1.1 // indirect
 )
 
-replace github.com/fgtago/fgweb v1.2.1 => ../../fgtago/fgweb
+// replace github.com/fgtago/fgweb v1.2.1 => ../../fgtago/fgweb
