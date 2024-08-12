@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -50,6 +51,17 @@ func main() {
 
 	// load libraries
 	libs.Load(ws)
+
+	// set output log
+	logfilepath := filepath.Join(ws.RootDir, "data", "logs", "application.log")
+	f, err := os.OpenFile(logfilepath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+		os.Exit(1)
+	}
+	defer f.Close()
+
+	log.SetOutput(f)
 
 	// jalankan service webserver
 	port := ws.Configuration.Port
