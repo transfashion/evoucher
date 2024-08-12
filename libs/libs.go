@@ -21,9 +21,11 @@ func Load(w *appsmodel.Webservice) {
 	ws = w
 	appcfg := ws.ApplicationConfig.(*models.ApplicationConfig)
 
+	fmt.Println("Connecting to Kalista Database...")
 	err := kalistadb.ConnectDatabase(
 		appcfg.Kalista.Database.Server,
 		appcfg.Kalista.Database.Name,
+		appcfg.Kalista.Database.Port,
 		appcfg.Kalista.Database.Username,
 		appcfg.Kalista.Database.Password)
 	if err != nil {
