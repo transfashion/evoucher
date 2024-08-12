@@ -35,3 +35,6 @@ vendor
 
 
 .DS_Store
+
+Dockerfile
+docker-evoucher.yml
