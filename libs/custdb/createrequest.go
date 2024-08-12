@@ -11,6 +11,7 @@ type RequestData struct {
 	Ref        string
 	RoomId     string
 	VoubatchId string
+	VouId      string
 	Intent     string
 	Message    string
 	JsonData   string

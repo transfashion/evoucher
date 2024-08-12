@@ -1,8 +1,12 @@
 {{template "layoutdasar" .}}
 
 {{define "pagecontent"}}
-	Selamat anda mendapatkan voucher dengan nominal xxxx.
-	Voucher akan kami kirimkan via whatsapp.
+	Selamat anda mendapatkan voucher dengan nominal <b>{{ .Data.Nominal }}</b><br>
+	Voucher akan kami kirimkan via whatsapp.<br>
+	Voucher valid sampai dengan <b>{{ .Data.ExpiredDate }}</b><br>
+	<br>
+	Silahkan klik <a href="{{ .Data.VoucherLink }}">{{ .Data.VoucherLink }}</a> untuk melihat voucher.
+
 {{end}}
 
 

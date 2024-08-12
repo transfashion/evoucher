@@ -6,10 +6,11 @@
 		<input type="hidden" name="csrf_token" value="{{.CsrfToken}}">
 		<input type="hidden" name="request_id" value="{{.Data.RequestId}}">
 		<input type="hidden" name="room_id" value="{{.Data.RoomId}}">
+		<input type="hidden" name="phone" value="{{.Data.PhoneNumber}}">
 
 		<div id="evoucher-phone" class="dw-input-textbox simple-textbox" disabled>
-			<input type="text" id="phone" name="phone" onkeyup="this.setAttribute('value', this.value);" value="{{.Data.PhoneNumber}}" maxlength="20" readonly disabled>					
-			<label for="phone">Phone Number</label>
+			<input type="text" id="phonenum" name="phonenum" onkeyup="this.setAttribute('value', this.value);" value="{{.Data.PhoneNumber}}" maxlength="20" readonly disabled>					
+			<label for="phonenum">Phone Number</label>
 		</div>
 
 		<div id="evoucher-name" class="dw-input-textbox simple-textbox">

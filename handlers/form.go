@@ -55,6 +55,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 		RoomId:      ld.RoomId,
 		PhoneNumber: ld.Customer.PhoneNumber,
 		Name:        ld.Customer.Name,
+		Gender:      ld.Customer.Gender,
 	}
 
 	if r.Method == "POST" {
@@ -74,6 +75,8 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 		data.Code = code
 		data.RoomId = room_id
 		data.RequestId = request_id
+
+		log.Println(data)
 
 		// cek gender sudah diisi apa belum
 		if gender == "" {
@@ -112,7 +115,8 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			// data yang diisikan sudah benar
 
 			// save data customer
-			err := cdb.UpdateCustomer(phone, name, gender)
+			log.Println("update customer data", data.PhoneNumber, data.Name, data.Gender)
+			err := cdb.UpdateCustomer(data.PhoneNumber, data.Name, data.Gender)
 			if err != nil {
 				FormError(w, r, err)
 				return
