@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/http"
+	"path/filepath"
+	"strings"
 
 	"github.com/fgtago/fgweb"
 	"github.com/fgtago/fgweb/appsmodel"
@@ -13,6 +15,7 @@ import (
 )
 
 func Router(mux *chi.Mux) error {
+	ws := appsmodel.GetWebservice()
 
 	mux.Use(PageSetup)
 
@@ -21,7 +24,7 @@ func Router(mux *chi.Mux) error {
 	fgweb.Get(mux, "/asset/*", defaulthandlers.AssetHandler)
 	fgweb.Get(mux, "/template/*", defaulthandlers.TemplateHandler)
 
-	hnd := handlers.New(appsmodel.GetWebservice())
+	hnd := handlers.New(ws)
 	fgweb.Get(mux, "/", hnd.Home)
 	fgweb.Get(mux, "/{vouid}/voucherqr.svg", hnd.VoucherQrSVG)
 	fgweb.Get(mux, "/{vouid}/voucherqr.png", hnd.VoucherQrPNG)
@@ -37,7 +40,21 @@ func Router(mux *chi.Mux) error {
 	api := apis.New(appsmodel.GetWebservice())
 	fgweb.Post(mux, "/api/requestvoucher", api.RequestVoucher)
 
+	stadir := filepath.Join(ws.RootDir, "data", "vouchers")
+	fileServer := http.FileServer(http.Dir(stadir))
+	mux.Handle("/vouchers/*", noDirListing(http.StripPrefix("/vouchers", fileServer)))
+
 	return nil
+}
+
+func noDirListing(h http.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/") {
+			http.NotFound(w, r)
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
 }
 
 func PageSetup(next http.Handler) http.Handler {

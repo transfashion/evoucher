@@ -22,3 +22,5 @@ require (
 	github.com/houseme/mobiledetect v1.2.1 // indirect
 	github.com/justinas/nosurf v1.1.1 // indirect
 )
+
+replace github.com/fgtago/fgweb v1.2.1 => ../../fgtago/fgweb

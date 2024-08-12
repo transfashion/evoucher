@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/dustin/go-humanize"
 	"github.com/fgtago/fgweb/appsmodel"
@@ -92,6 +94,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			400811
 			803814
 			014815
+			328644
 			*/
 
 			log.Println("verifying code", data.Code)
@@ -162,6 +165,20 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 
 			log.Println("new voucher issued", voucher.Id)
 
+			// buat image voucher
+			jpgdata, err := voucher.CreateVoucherQrJPG()
+			if err != nil {
+				FormError(w, r, err)
+				return
+			}
+
+			// simpan voucher ke direktori
+			err = os.WriteFile(filepath.Join(hdr.Webservice.RootDir, "data", "vouchers", voucher.Id+".jpg"), jpgdata, 0644)
+			if err != nil {
+				FormError(w, r, err)
+				return
+			}
+
 			// update ke ke mst_custwalinkreq untuk kode voucher dan value ke field result
 			log.Println("update linkrequest voucher", linkreq, code)
 			err = cdb.UpdateLinkRequestVoucher(linkreq, voucher.Id)
@@ -174,7 +191,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 
 			// send image voucher
 			//imglink := "https://evoucher.transfashionindonesia.com/testqr.svg"
-			imglink := fmt.Sprintf("%s%s/voucherqr.jpg", basehref, voucher.Id)
+			imglink := fmt.Sprintf("%svouchers/%s.jpg", basehref, voucher.Id)
 			log.Println("sending image voucher via qiscus to", data.PhoneNumber, data.RoomId, imglink)
 			res, err := qcs.SendImage(data.RoomId, imglink, "Tunjukkan voucher ini saat bertransaksi untuk mendapatkan potongan harga senilai voucher. (Syarat dan ketentuan berlaku)")
 			if err != nil {
