@@ -174,7 +174,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 
 			// send image voucher
 			//imglink := "https://evoucher.transfashionindonesia.com/testqr.svg"
-			imglink := fmt.Sprintf("%s%s/voucherqr.png", basehref, voucher.Id)
+			imglink := fmt.Sprintf("%s%s/voucherqr.jpg", basehref, voucher.Id)
 			log.Println("sending image voucher via qiscus to", data.PhoneNumber, data.RoomId, imglink)
 			res, err := qcs.SendImage(data.RoomId, imglink, "Tunjukkan voucher ini saat bertransaksi untuk mendapatkan potongan harga senilai voucher. (Syarat dan ketentuan berlaku)")
 			if err != nil {
