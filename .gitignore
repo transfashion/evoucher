@@ -32,3 +32,6 @@ runcontainer.sh
 config-container.yml
 
 vendor
+
+
+.DS_Store
