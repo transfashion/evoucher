@@ -30,3 +30,5 @@ config-local.yml
 
 runcontainer.sh
 config-container.yml
+
+vendor

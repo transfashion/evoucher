@@ -1,10 +1,7 @@
 package handlers
 
 import (
-	"bytes"
 	"fmt"
-	"image/png"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -12,8 +9,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/transfashion/evoucher/libs"
-
-	"github.com/foolin/go-resvg"
 )
 
 func (hdr *Handler) VoucherQrPNG(w http.ResponseWriter, r *http.Request) {
@@ -41,34 +36,29 @@ func (hdr *Handler) VoucherQrPNG(w http.ResponseWriter, r *http.Request) {
 		voucher.HeaderLogoData = logodata
 	}
 
-	svgdata, err := voucher.CreateVoucherQrSvg()
+	// svgdata, err := voucher.CreateVoucherQrSvg()
+	// if err != nil {
+	// 	fmt.Fprintln(w, err.Error())
+	// 	panic(err)
+	// }
+
+	// // convert svg to png
+
+	// var buffer bytes.Buffer
+	// writer := io.Writer(&buffer)
+
+	// err = png.Encode(writer, img)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	pngdata, err := voucher.CreateVoucherQrPNG()
 	if err != nil {
 		fmt.Fprintln(w, err.Error())
-		panic(err)
-	}
-
-	// myReader := strings.NewReader(svgdata)
-
-	// convert SVG data to PNG
-
-	// installasi module yang diperlukan di OS
-	// sudo apt-get install libcairo2-dev
-	// brew install cairo pkg-config
-	img, err := resvg.RenderImageFromString(svgdata, nil)
-	if err != nil {
-		fmt.Fprintln(w, err.Error())
-		return
-	}
-
-	var buffer bytes.Buffer
-	writer := io.Writer(&buffer)
-
-	err = png.Encode(writer, img)
-	if err != nil {
 		panic(err)
 	}
 
 	w.Header().Set("Content-Type", "image/png")
-	w.Write(buffer.Bytes())
+	w.Write(pngdata)
 
 }

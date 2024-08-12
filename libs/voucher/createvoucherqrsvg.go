@@ -38,9 +38,8 @@ func (v *Voucher) CreateVoucherQrSvg() (string, error) {
 	// buat QR
 	qs.SetStartPoint(0, voulogo_height)
 	s.Start(image_width, image_height)
-	qs.WriteQrSVG(s)
-
-	// baca logo
+	s.Rect(0, 0, image_width, image_height, "fill:white;stroke:none") // buat bacground
+	qs.WriteQrSVG(s)                                                  // buat QR nya
 
 	// buat brand logo
 	if v.HeaderLogoData != nil {
@@ -48,24 +47,24 @@ func (v *Voucher) CreateVoucherQrSvg() (string, error) {
 		s.Image(0, 0, qr_width, voulogo_height, "data:image/png;base64,"+encodedData)
 	}
 
-	// buat note voucher
+	// buat text kode voucher
 	tx := int(image_width / 2)
 	ty := voulogo_height + qr_height + 18
-	s.Text(tx, ty, text, "black;text-anchor:middle; font-size:24px")
+	s.Text(tx, ty, text, "black; font-size:20px; text-anchor:middle; font-family:monospace")
 
 	// buat keterangan
 	ty = ty + 26
-	s.Text(tx, ty, "voucher potongan harga", "black;text-anchor:middle; font-size:16px")
+	s.Text(tx, ty, "voucher potongan harga", "black;text-anchor:middle; font-size:14px; font-family:monospace")
 
 	// buat nilai voucher
 	vouchervalue := humanize.Comma(int64(v.Value))
 
 	ty = ty + 40
-	s.Text(tx, ty, vouchervalue, "black; text-anchor:middle; font-size:42px; font-weight:bold")
+	s.Text(tx, ty, vouchervalue, "black; text-anchor:middle; font-size:36px; font-weight:bold; font-family:monospace")
 
 	// buat nilai tnc
 	ty = ty + 26
-	s.Text(tx, ty, "** syarat dan kententuan berlaku **", "black; text-anchor:middle; font-size:12px; font-style:italic")
+	s.Text(tx, ty, "** syarat dan kententuan berlaku **", "black; text-anchor:middle; font-size:9px; font-style:italic; font-family:monospace")
 
 	s.End()
 

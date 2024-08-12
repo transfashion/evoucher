@@ -10,7 +10,9 @@ services:
       - devnetwork 
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    restart: always
+    volumes:
+      - .:/go/src:consistent
+    working_dir: /go/src
  
 networks:
   devnetwork:

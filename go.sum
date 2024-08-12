@@ -19,8 +19,6 @@ github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkp
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/fgtago/fgweb v1.2.2 h1:y+gbU/O+OhbZ3zanfeiKEUVWPZdXcoVod6//F8gd4jM=
 github.com/fgtago/fgweb v1.2.2/go.mod h1:pMFF5U0U2Wd8Tsl4wUeHcHM9sIzPIgcfKV1jsFWBOD0=
-github.com/foolin/go-resvg v0.1.0 h1:uVBGJdo+p0LkK3FLj2vClZWjKUrxsSWfKEah9D5heoM=
-github.com/foolin/go-resvg v0.1.0/go.mod h1:1dgrOPShL+YeWU4WzfajifGFA1O/jxpe7vPcoGxc8hc=
 github.com/go-chi/chi/v5 v5.1.0 h1:acVI1TYaD+hhedDJ3r54HyA6sExp3HfXq7QWEEY/xMw=
 github.com/go-chi/chi/v5 v5.1.0/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=
 github.com/go-sql-driver/mysql v1.8.1 h1:LedoTUt/eveggdHS9qUFC1EFSa8bU2+1pZjSRpvNJ1Y=
@@ -30,8 +28,8 @@ github.com/houseme/mobiledetect v1.2.1/go.mod h1:QNYrZBISjfi0UNH5/LjHwWAsP3mbka4
 github.com/justinas/nosurf v1.1.1 h1:92Aw44hjSK4MxJeMSyDa7jwuI9GR2J/JCQiaKvXXSlk=
 github.com/justinas/nosurf v1.1.1/go.mod h1:ALpWdSbuNGy2lZWtyXdjkYv4edL23oSEgfBT1gPJ5BQ=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
-github.com/ungerik/go-cairo v0.0.0-20240304075741-47de8851d267 h1:KA55kgg61iraQP4wSKIFRHwHIgDqim2Tvh8EXn7Udxw=
-github.com/ungerik/go-cairo v0.0.0-20240304075741-47de8851d267/go.mod h1:yLTJg56omDJ+JVxZ5whpCrZgQdaSs+OBdFa+X6ViJcI=
+github.com/mskrha/svg2png v0.0.0-20240706085601-64fa78f4eb07 h1:7fan6wzUXasMPMHho2ePSkB+QTEb0Rh/f6B+IkkP1Sc=
+github.com/mskrha/svg2png v0.0.0-20240706085601-64fa78f4eb07/go.mod h1:KFdfdIgpr48ODxdkxKvpcYwuyLpQ6rfkAsFB2UQ6jD4=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
