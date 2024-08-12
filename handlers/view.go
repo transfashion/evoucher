@@ -16,6 +16,7 @@ type ViewPageData struct {
 	VoucherId        string
 	VoucherQrSvgLink string
 	VoucherTNC       string
+	TNC              []string
 }
 
 func (hdr *Handler) View(w http.ResponseWriter, r *http.Request) {
@@ -38,10 +39,31 @@ func (hdr *Handler) View(w http.ResponseWriter, r *http.Request) {
 
 	voucherlik := fmt.Sprintf("%s%s/voucherqr.svg", basehref, vou_id)
 
+	// get voucher TNC
+	query := "select voutnc_descr from mst_voutnc  where voubatch_id = ? order by voutnc_order"
+	rows, err := vdb.Connection.Query(query, voucher.BatchId)
+	if err != nil {
+		fmt.Fprintln(w, err.Error())
+		panic(err)
+	}
+	defer rows.Close()
+
+	tncs := make([]string, 0)
+	for rows.Next() {
+		var tnc string
+		err := rows.Scan(&tnc)
+		if err != nil {
+			fmt.Fprintln(w, err.Error())
+			panic(err)
+		}
+		tncs = append(tncs, tnc)
+	}
+
 	data := &ViewPageData{
 		VoucherId:        vou_id,
 		VoucherQrSvgLink: voucherlik,
 		VoucherTNC:       "tnc dari voucher",
+		TNC:              tncs,
 	}
 
 	ctx := r.Context()
