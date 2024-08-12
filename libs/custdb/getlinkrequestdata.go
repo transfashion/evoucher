@@ -3,6 +3,8 @@ package custdb
 import (
 	"database/sql"
 	"log"
+
+	"github.com/transfashion/evoucher/libs/helper"
 )
 
 func (db *CustomerDB) GetLinkRequestData(reqid string) (*RequestData, error) {
@@ -20,14 +22,18 @@ func (db *CustomerDB) GetLinkRequestData(reqid string) (*RequestData, error) {
 	var d RequestData
 	var c Customer
 
+	var vou_id *string = new(string)
+
 	log.Println("GetLinkRequestData", reqid)
 	row := db.Connection.QueryRow(query, reqid)
-	err := row.Scan(&c.PhoneNumber, &c.Name, &c.Gender, &d.Ref, &d.Intent, &d.RoomId, &d.Message, &d.JsonData, &d.VoubatchId, &d.VouId)
+	err := row.Scan(&c.PhoneNumber, &c.Name, &c.Gender, &d.Ref, &d.Intent, &d.RoomId, &d.Message, &d.JsonData, &d.VoubatchId, &vou_id)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
+
+	d.VouId = helper.IsStringNil(vou_id, "")
 
 	ld := &d
 	ld.Customer = &c
