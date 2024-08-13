@@ -153,6 +153,14 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
+				// resolve message
+				log.Println("resolve message in qiscus", data.PhoneNumber, data.RoomId)
+				err = qcs.Resolve(data.RoomId)
+				if err != nil {
+					FormError(w, r, err)
+					return
+				}
+
 				// redirect ke halaman preview voucher
 				nexturl := fmt.Sprintf("%vsent", basehref)
 				http.Redirect(w, r, nexturl, http.StatusSeeOther)
@@ -236,7 +244,6 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 				FormError(w, r, err)
 				return
 			}
-			log.Println(res)
 
 			// commit linkrequest
 			err = cdb.CommitLinkRequest(linkreq, res)
