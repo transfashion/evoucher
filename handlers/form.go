@@ -170,6 +170,16 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			log.Println("new voucher issued", voucher.Id)
 
 			// buat image voucher
+			logofilepath := filepath.Join(hdr.Webservice.RootDir, "data", "images", "vlogo_transfashion.png")
+			logodata, err := os.ReadFile(logofilepath)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if logodata != nil {
+				voucher.HeaderLogoData = logodata
+			}
+
 			jpgdata, err := voucher.CreateVoucherQrJPG()
 			if err != nil {
 				FormError(w, r, err)
