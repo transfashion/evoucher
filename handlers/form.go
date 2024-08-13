@@ -229,6 +229,15 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			}
 			// basehref = temphref
 
+			// resolve message
+			log.Println("resolve message in qiscus", data.PhoneNumber, data.RoomId)
+			err = qcs.Resolve(data.RoomId)
+			if err != nil {
+				FormError(w, r, err)
+				return
+			}
+			log.Println(res)
+
 			// commit linkrequest
 			err = cdb.CommitLinkRequest(linkreq, res)
 			if err != nil {
