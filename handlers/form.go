@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/dustin/go-humanize"
 	"github.com/fgtago/fgweb/appsmodel"
@@ -53,6 +55,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 		RoomId:      ld.RoomId,
 		PhoneNumber: ld.Customer.PhoneNumber,
 		Name:        ld.Customer.Name,
+		Gender:      ld.Customer.Gender,
 	}
 
 	if r.Method == "POST" {
@@ -73,6 +76,8 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 		data.RoomId = room_id
 		data.RequestId = request_id
 
+		log.Println(data)
+
 		// cek gender sudah diisi apa belum
 		if gender == "" {
 			invalid = invalid || true
@@ -92,6 +97,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			400811
 			803814
 			014815
+			328644
 			*/
 
 			log.Println("verifying code", data.Code)
@@ -109,7 +115,8 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			// data yang diisikan sudah benar
 
 			// save data customer
-			err := cdb.UpdateCustomer(phone, name, gender)
+			log.Println("update customer data", data.PhoneNumber, data.Name, data.Gender)
+			err := cdb.UpdateCustomer(data.PhoneNumber, data.Name, data.Gender)
 			if err != nil {
 				FormError(w, r, err)
 				return
@@ -146,6 +153,14 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
+				// resolve message
+				log.Println("resolve message in qiscus", data.PhoneNumber, data.RoomId)
+				err = qcs.Resolve(data.RoomId)
+				if err != nil {
+					FormError(w, r, err)
+					return
+				}
+
 				// redirect ke halaman preview voucher
 				nexturl := fmt.Sprintf("%vsent", basehref)
 				http.Redirect(w, r, nexturl, http.StatusSeeOther)
@@ -162,6 +177,30 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 
 			log.Println("new voucher issued", voucher.Id)
 
+			// buat image voucher
+			logofilepath := filepath.Join(hdr.Webservice.RootDir, "data", "images", "vlogo_transfashion.png")
+			logodata, err := os.ReadFile(logofilepath)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if logodata != nil {
+				voucher.HeaderLogoData = logodata
+			}
+
+			jpgdata, err := voucher.CreateVoucherQrJPG()
+			if err != nil {
+				FormError(w, r, err)
+				return
+			}
+
+			// simpan voucher ke direktori
+			err = os.WriteFile(filepath.Join(hdr.Webservice.RootDir, "data", "vouchers", voucher.Id+".jpg"), jpgdata, 0644)
+			if err != nil {
+				FormError(w, r, err)
+				return
+			}
+
 			// update ke ke mst_custwalinkreq untuk kode voucher dan value ke field result
 			log.Println("update linkrequest voucher", linkreq, code)
 			err = cdb.UpdateLinkRequestVoucher(linkreq, voucher.Id)
@@ -174,7 +213,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 
 			// send image voucher
 			//imglink := "https://evoucher.transfashionindonesia.com/testqr.svg"
-			imglink := fmt.Sprintf("%s%s/voucherqr.png", basehref, voucher.Id)
+			imglink := fmt.Sprintf("%svouchers/%s.jpg", basehref, voucher.Id)
 			log.Println("sending image voucher via qiscus to", data.PhoneNumber, data.RoomId, imglink)
 			res, err := qcs.SendImage(data.RoomId, imglink, "Tunjukkan voucher ini saat bertransaksi untuk mendapatkan potongan harga senilai voucher. (Syarat dan ketentuan berlaku)")
 			if err != nil {
@@ -197,6 +236,14 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			// basehref = temphref
+
+			// resolve message
+			log.Println("resolve message in qiscus", data.PhoneNumber, data.RoomId)
+			err = qcs.Resolve(data.RoomId)
+			if err != nil {
+				FormError(w, r, err)
+				return
+			}
 
 			// commit linkrequest
 			err = cdb.CommitLinkRequest(linkreq, res)

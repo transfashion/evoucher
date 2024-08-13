@@ -17,8 +17,8 @@ github.com/boombuler/barcode v1.0.2 h1:79yrbttoZrLGkL/oOI8hBrUKucwOL0oOjUgEguGMc
 github.com/boombuler/barcode v1.0.2/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
-github.com/fgtago/fgweb v1.2.2 h1:y+gbU/O+OhbZ3zanfeiKEUVWPZdXcoVod6//F8gd4jM=
-github.com/fgtago/fgweb v1.2.2/go.mod h1:pMFF5U0U2Wd8Tsl4wUeHcHM9sIzPIgcfKV1jsFWBOD0=
+github.com/fgtago/fgweb v1.2.3 h1:AohjHexdVDVMU1YzjSjp3VUh0qyBQDZRC6WMq03B2mk=
+github.com/fgtago/fgweb v1.2.3/go.mod h1:pMFF5U0U2Wd8Tsl4wUeHcHM9sIzPIgcfKV1jsFWBOD0=
 github.com/go-chi/chi/v5 v5.1.0 h1:acVI1TYaD+hhedDJ3r54HyA6sExp3HfXq7QWEEY/xMw=
 github.com/go-chi/chi/v5 v5.1.0/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=
 github.com/go-sql-driver/mysql v1.8.1 h1:LedoTUt/eveggdHS9qUFC1EFSa8bU2+1pZjSRpvNJ1Y=

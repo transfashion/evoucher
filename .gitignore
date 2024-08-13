@@ -40,3 +40,7 @@ Dockerfile
 docker-evoucher.yml
 
 src
+
+
+data/vouchers
+data/logs

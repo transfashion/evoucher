@@ -10,12 +10,15 @@
 {{end}}
 
 {{define "pagecontent"}}
-	<div>
+	<div style="text-align: center;">
 		<img src="{{.Data.VoucherQrSvgLink}}" style="width:230px; height:410px">
 	</div>
-	<div>
-		{{.Data.VoucherTNC}}
-	</div>
+
+	<div  style="text-align: center; font-weight: bold;">Syarat dan Ketentuan</div>
+	{{ range .Data.TNC }}
+	<div  style="text-align: center;">{{ . }}</div>
+	{{ end }}
+
 {{end}}
 
 
