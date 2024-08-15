@@ -43,7 +43,7 @@ func (hdr *Handler) Result(w http.ResponseWriter, r *http.Request) {
 
 	voucherlik := fmt.Sprintf("%sview/%s", basehref, voucher.Id)
 
-	fmt.Println(voucher)
+	//fmt.Println(voucher)
 	data := &ResultPageData{
 		Nominal:     humanize.Comma(int64(voucher.Value)),
 		ExpiredDate: voucher.ExpiredDate.Format("2006-01-02"),

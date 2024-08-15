@@ -72,7 +72,9 @@ func (v *VoucherDB) CreateNewVoucher(voubatch_id string, phonenumber string, cus
 		vou_infocode = 'WA',
 		vou_assigncode = ?,
 		vou_assignto = ?,
-		vou_assigntoname = ?
+		vou_assigntoname = ?,
+		vou_isactive = 1,
+		vou_dtactive = NOW()
 		where
 		vou_id = ?
 	`
