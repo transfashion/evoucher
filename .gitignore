@@ -28,6 +28,10 @@ config-test.yml
 runlocal.sh
 config-local.yml
 
+rundebug.sh
+config-debug.yml
+
+
 runcontainer.sh
 config-container.yml
 
@@ -44,3 +48,7 @@ src
 
 data/vouchers
 data/logs
+
+
+__debug_bin*
+
