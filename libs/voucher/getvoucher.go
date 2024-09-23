@@ -3,6 +3,7 @@ package voucher
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	"github.com/transfashion/evoucher/libs/helper"
 )
@@ -38,8 +39,10 @@ func (v *VoucherDB) GetVoucher(vou_id string) (*Voucher, error) {
 		&voubatch_id,
 	)
 	if err == sql.ErrNoRows {
+		log.Println("voucher batch not found")
 		return nil, fmt.Errorf("voucher batch not found")
 	} else if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 

@@ -33,6 +33,7 @@ func (q *Qiscus) SendImage(room_id string, imagelink string, message string) (st
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
+		log.Println(err.Error())
 		return "", err
 	}
 	req.Header.Add("Content-Type", "application/json")
@@ -40,12 +41,14 @@ func (q *Qiscus) SendImage(room_id string, imagelink string, message string) (st
 
 	res, err := client.Do(req)
 	if err != nil {
+		log.Println(err.Error())
 		return "", err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
+		log.Println(err.Error())
 		return "", err
 	}
 	log.Println("result:", string(body))

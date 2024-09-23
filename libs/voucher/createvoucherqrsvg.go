@@ -3,6 +3,7 @@ package voucher
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"io"
 
 	"github.com/transfashion/evoucher/libs/qrcode"
@@ -49,11 +50,11 @@ func (v *Voucher) CreateVoucherQrSvg() (string, error) {
 
 	// buat text kode voucher
 	tx := int(image_width / 2)
-	ty := voulogo_height + qr_height + 18
+	ty := voulogo_height + qr_height + 15
 	s.Text(tx, ty, text, "black; font-size:20px; text-anchor:middle; font-family:monospace")
 
 	// buat keterangan
-	ty = ty + 26
+	ty = ty + 25
 	s.Text(tx, ty, "voucher potongan harga", "black;text-anchor:middle; font-size:14px; font-family:monospace")
 
 	// buat nilai voucher
@@ -62,8 +63,14 @@ func (v *Voucher) CreateVoucherQrSvg() (string, error) {
 	ty = ty + 40
 	s.Text(tx, ty, vouchervalue, "black; text-anchor:middle; font-size:36px; font-weight:bold; font-family:monospace")
 
+	// tampilkan expired date
+	// voucher.ExpiredDate.Format("2006-01-02"),
+	expdate := fmt.Sprintf("voucher valid s/d %s", v.ExpiredDate.Format("02 Jan 2006"))
+	ty = ty + 23
+	s.Text(tx, ty, expdate, "black; text-anchor:middle; font-size:12px; font-family:monospace")
+
 	// buat nilai tnc
-	ty = ty + 26
+	ty = ty + 15
 	s.Text(tx, ty, "** syarat dan kententuan berlaku **", "black; text-anchor:middle; font-size:9px; font-style:italic; font-family:monospace")
 
 	s.End()

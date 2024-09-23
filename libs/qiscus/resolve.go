@@ -3,6 +3,7 @@ package qiscus
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -24,7 +25,7 @@ func (q *Qiscus) Resolve(room_id string) error {
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err.Error())
 		return err
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -33,7 +34,7 @@ func (q *Qiscus) Resolve(room_id string) error {
 
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err.Error())
 		return err
 	}
 	defer res.Body.Close()
@@ -41,6 +42,7 @@ func (q *Qiscus) Resolve(room_id string) error {
 	// body, err := io.ReadAll(res.Body)
 	_, err = io.ReadAll(res.Body)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 

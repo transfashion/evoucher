@@ -11,15 +11,19 @@ import (
 	"github.com/fgtago/fgweb/appsmodel"
 	"github.com/fgtago/fgweb/defaulthandlers"
 	"github.com/transfashion/evoucher/libs"
+	"github.com/transfashion/evoucher/libs/helper"
 )
 
 type FormPageData struct {
-	RequestId   string
-	PhoneNumber string
-	Name        string
-	Gender      string
-	Code        string
-	RoomId      string
+	CustId            string
+	RequestId         string
+	PhoneNumber       string
+	Name              string
+	Gender            string
+	Code              string
+	RoomId            string
+	Description       string
+	UseActivationCode bool
 
 	GenderInvalid      bool
 	CodeInvalid        bool
@@ -41,6 +45,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 	linkreq := r.URL.Query().Get("req")
 	ld, err := cdb.GetLinkRequestData(linkreq)
 	if err != nil {
+		log.Println("gagal mendapatkan link request data")
 		FormError(w, r, err)
 		return
 	}
@@ -50,18 +55,31 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ambil informasi voucher ini
+	voubatch_id := ld.VoubatchId
+	voubatch, err := vdb.GetVoucherBatch(voubatch_id)
+	if err != nil {
+		log.Println(err.Error())
+		FormError(w, r, err)
+		return
+	}
+
 	data := &FormPageData{
-		RequestId:   linkreq,
-		RoomId:      ld.RoomId,
-		PhoneNumber: ld.Customer.PhoneNumber,
-		Name:        ld.Customer.Name,
-		Gender:      ld.Customer.Gender,
+		RequestId:         linkreq,
+		RoomId:            ld.RoomId,
+		PhoneNumber:       ld.Customer.PhoneNumber,
+		CustId:            ld.Customer.Id,
+		Name:              ld.Customer.Name,
+		Gender:            ld.Customer.Gender,
+		Description:       *voubatch.Description,
+		UseActivationCode: voubatch.UseActivationCode,
 	}
 
 	if r.Method == "POST" {
 		log.Println("posting data")
 		var invalid bool = false
 
+		cust_id := r.FormValue("cust_id")
 		phone := r.FormValue("phone")
 		name := r.FormValue("name")
 		gender := r.FormValue("gender")
@@ -69,6 +87,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 		room_id := r.FormValue("room_id")
 		request_id := r.FormValue("request_id")
 
+		data.CustId = cust_id
 		data.Name = name
 		data.PhoneNumber = phone
 		data.Gender = gender
@@ -85,29 +104,23 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// cek apakah code sudah diisi
-		if data.Code == "" {
-			invalid = invalid || true
-			data.CodeInvalid = true
-			data.CodeInvalidMessage = "Code harus diisi. Silakan minta kode aktifasi voucher ke kasir"
-		} else {
-			// cek apakah code yang diisikan sudah benar
-			/* contoh kode valid
-			018819
-			805816
-			400811
-			803814
-			014815
-			328644
-			*/
-
-			log.Println("verifying code", data.Code)
-			slpart, isvalidcode := vdb.VerifyCode(data.Code)
-			if !isvalidcode {
+		if voubatch.UseActivationCode {
+			if data.Code == "" {
 				invalid = invalid || true
 				data.CodeInvalid = true
-				data.CodeInvalidMessage = "Code yang diisikan salah"
+				data.CodeInvalidMessage = "Code harus diisi. Silakan minta kode aktifasi voucher ke kasir"
+			} else {
+				// cek apakah code yang diisikan sudah benar
+				// contoh kode valid 018819 805816 400811 803814 014815 328644
+				log.Println("verifying code", data.Code)
+				slpart, isvalidcode := vdb.VerifyCode(data.Code)
+				if !isvalidcode {
+					invalid = invalid || true
+					data.CodeInvalid = true
+					data.CodeInvalidMessage = "Code yang diisikan salah"
+				}
+				data.SLPart = slpart
 			}
-			data.SLPart = slpart
 		}
 
 		if !invalid {
@@ -115,9 +128,10 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			// data yang diisikan sudah benar
 
 			// save data customer
-			log.Println("update customer data", data.PhoneNumber, data.Name, data.Gender)
-			err := cdb.UpdateCustomer(data.PhoneNumber, data.Name, data.Gender)
+			log.Println("update customer data", data.CustId, data.Name, data.Gender)
+			err := cdb.UpdateCustomer(data.CustId, data.Name, data.Gender)
 			if err != nil {
+				log.Println("gagal update data customer")
 				FormError(w, r, err)
 				return
 			}
@@ -126,6 +140,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			log.Println("update linkrequest code", linkreq, code)
 			err = cdb.UpdateLinkRequestCode(linkreq, data.Code, data.SLPart)
 			if err != nil {
+				log.Println("gagal update code linkrequest")
 				FormError(w, r, err)
 				return
 			}
@@ -135,6 +150,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			log.Println("Get existing user voucher code", ld.VoubatchId, code, "for", ld.Customer.PhoneNumber, code)
 			voucher, err := vdb.GetVoucherByPhoneNumber(ld.VoubatchId, ld.Customer.PhoneNumber, code)
 			if err != nil {
+				log.Println("gagal mendapatkan existing code voucher")
 				FormError(w, r, err)
 				return
 			}
@@ -145,10 +161,17 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 
 				// send information to whatsapp
 				log.Println("sending message via qiscus to", data.PhoneNumber, data.RoomId)
-				//voucherlik := fmt.Sprintf("%s%s/voucherqr.svg", basehref, voucher.Id)
-				voucherlik := fmt.Sprintf("%sview/%s", basehref, voucher.Id)
+				vou_id_url, err := helper.Encrypt(voucher.Id)
+				if err != nil {
+					log.Println("gagal ekripsi voucher")
+					FormError(w, r, fmt.Errorf("gagal medapapatkan kode enkripsi voucher"))
+					return
+				}
+
+				voucherlik := fmt.Sprintf("%sview/%s", basehref, vou_id_url)
 				_, errqcs := qcs.SendMessage(data.RoomId, fmt.Sprintf("Anda telah mempunyai voucher ini dari request sebelumnya. Silakan klik link %s untuk melihat voucher anda", voucherlik))
 				if errqcs != nil {
+					log.Println("gagal kirim pesan via qiscus")
 					FormError(w, r, errqcs)
 					return
 				}
@@ -157,12 +180,14 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 				log.Println("resolve message in qiscus", data.PhoneNumber, data.RoomId)
 				err = qcs.Resolve(data.RoomId)
 				if err != nil {
+					log.Println("gagal resolve message di qiscus")
 					FormError(w, r, err)
 					return
 				}
 
 				// redirect ke halaman preview voucher
 				nexturl := fmt.Sprintf("%vsent", basehref)
+				log.Println("redirect halaman ke", nexturl)
 				http.Redirect(w, r, nexturl, http.StatusSeeOther)
 				return
 			}
@@ -171,16 +196,17 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			// buat voucher baru
 			voucher, err = vdb.CreateNewVoucher(ld.VoubatchId, ld.Customer.PhoneNumber, ld.Customer.Name, code)
 			if err != nil {
+				log.Println("gagal membuat voucher baru")
 				FormError(w, r, err)
 				return
 			}
-
 			log.Println("new voucher issued", voucher.Id)
 
 			// buat image voucher
 			logofilepath := filepath.Join(hdr.Webservice.RootDir, "data", "images", "vlogo_transfashion.png")
 			logodata, err := os.ReadFile(logofilepath)
 			if err != nil {
+				log.Println(err.Error())
 				log.Fatal(err)
 			}
 
@@ -190,6 +216,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 
 			jpgdata, err := voucher.CreateVoucherQrJPG()
 			if err != nil {
+				log.Println("gagal membuat image QR voucher")
 				FormError(w, r, err)
 				return
 			}
@@ -197,6 +224,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			// simpan voucher ke direktori
 			err = os.WriteFile(filepath.Join(hdr.Webservice.RootDir, "data", "vouchers", voucher.Id+".jpg"), jpgdata, 0644)
 			if err != nil {
+				log.Println(err.Error())
 				FormError(w, r, err)
 				return
 			}
@@ -205,6 +233,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			log.Println("update linkrequest voucher", linkreq, code)
 			err = cdb.UpdateLinkRequestVoucher(linkreq, voucher.Id)
 			if err != nil {
+				log.Println("gagal update linkrequest voucher")
 				FormError(w, r, err)
 				return
 			}
@@ -217,6 +246,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			log.Println("sending image voucher via qiscus to", data.PhoneNumber, data.RoomId, imglink)
 			res, err := qcs.SendImage(data.RoomId, imglink, "Tunjukkan voucher ini saat bertransaksi untuk mendapatkan potongan harga senilai voucher. (Syarat dan ketentuan berlaku)")
 			if err != nil {
+				log.Println("gagal mengirim image QR voucher via Qiscus")
 				FormError(w, r, err)
 				return
 			}
@@ -225,13 +255,23 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			// send message
 			// temphref := basehref
 			// basehref = "https://evoucher.transfashionindonesia.com/"
+
 			log.Println("sending message via qiscus to", data.PhoneNumber, data.RoomId)
-			voucherlik := fmt.Sprintf("%sview/%s", basehref, voucher.Id)
+			vou_id_url, err := helper.Encrypt(voucher.Id)
+			if err != nil {
+				log.Println("gagal ekripsi voucher")
+				FormError(w, r, fmt.Errorf("gagal medapapatkan kode enkripsi voucher"))
+				return
+			}
+
+			log.Println("sending message via qiscus to", data.PhoneNumber, data.RoomId)
+			voucherlik := fmt.Sprintf("%sview/%s", basehref, vou_id_url)
 			tmp := "Hai kak %s, selamat anda mendapatkan voucher potongan harga senilai %s. Untuk melihat dan menggunakan voucher ini, bisa juga dengan klik link %s. Terimakasih."
 			vouvalue := humanize.Comma(int64(voucher.Value))
 			msg := fmt.Sprintf(tmp, data.Name, vouvalue, voucherlik)
 			res, err = qcs.SendMessage(data.RoomId, msg)
 			if err != nil {
+				log.Println("gagal mengirim message via Qiscus")
 				FormError(w, r, err)
 				return
 			}
@@ -241,6 +281,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			log.Println("resolve message in qiscus", data.PhoneNumber, data.RoomId)
 			err = qcs.Resolve(data.RoomId)
 			if err != nil {
+				log.Println("gagal resolve message via Qiscus")
 				FormError(w, r, err)
 				return
 			}
@@ -248,12 +289,14 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			// commit linkrequest
 			err = cdb.CommitLinkRequest(linkreq, res)
 			if err != nil {
+				log.Println("gagal commit linkrequest via Qiscus")
 				FormError(w, r, err)
 				return
 			}
 
 			// 	// redirect
 			nexturl := fmt.Sprintf("%sresult?reqid=%s", basehref, linkreq)
+			log.Println("redirect to", nexturl)
 			http.Redirect(w, r, nexturl, http.StatusSeeOther)
 			return
 		} else {
@@ -267,8 +310,6 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 }
 
 func FormError(w http.ResponseWriter, r *http.Request, err error) {
-	log.Println(err.Error())
-
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Write([]byte(err.Error()))
 }

@@ -28,6 +28,7 @@ func (q *Qiscus) SendMessage(room_id string, message string) (string, error) {
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
+		log.Println(err.Error())
 		return "", err
 	}
 	req.Header.Add("Content-Type", "application/json")
@@ -35,12 +36,14 @@ func (q *Qiscus) SendMessage(room_id string, message string) (string, error) {
 
 	res, err := client.Do(req)
 	if err != nil {
+		log.Println(err.Error())
 		return "", err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
+		log.Println(err.Error())
 		return "", err
 	}
 	log.Println("result", string(body))

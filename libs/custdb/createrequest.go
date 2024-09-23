@@ -24,11 +24,11 @@ func (c *CustomerDB) CreateRequest(req *RequestData) (string, error) {
 	// simpan ke database
 	query := `
 		insert into mst_custwalinkreq
-		(custwalinkreq_id, ref, intent, room_id, message, data, voubatch_id, custwa_id, _createby)
+		(custwalinkreq_id, ref, intent, room_id, message, data, voubatch_id, custwa_id, cust_id, _createby)
 		values
-		(?, ?, ?, ?, ?, ?, ?, ?, '5effbb0a0f7d1')
+		(?, ?, ?, ?, ?, ?, ?, ?, ?, '5effbb0a0f7d1')
 	`
-	_, err := c.Connection.Exec(query, reqid, req.Ref, req.Intent, req.RoomId, req.Message, req.JsonData, req.VoubatchId, req.Customer.PhoneNumber)
+	_, err := c.Connection.Exec(query, reqid, req.Ref, req.Intent, req.RoomId, req.Message, req.JsonData, req.VoubatchId, req.Customer.PhoneNumber, req.Customer.Id)
 	if err != nil {
 		return "", err
 	}

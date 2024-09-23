@@ -1,10 +1,33 @@
 package custdb
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+
+	"github.com/transfashion/evoucher/libs/uniqid"
+)
 
 func (c *CustomerDB) CreateNew(phonenumber string, name string) (*Customer, error) {
-	_, err := c.Connection.Exec("INSERT INTO mst_custwa (custwa_id, custwa_name, custwa_gender, _createby) VALUES (?, ?, ?, '5effbb0a0f7d1')", phonenumber, name, "-")
+	cust_id := uniqid.New(uniqid.Params{MoreEntropy: false})
+	custaccess_id := cust_id
+
+	// insert into mst_cust
+	query := `
+		INSERT INTO mst_cust (cust_id, cust_phone, cust_name, _createby) VALUES (?, ?, ?, '5effbb0a0f7d1')
+	`
+	_, err := c.Connection.Exec(query, cust_id, phonenumber, name)
 	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+
+	// insert into mst_custaccess
+	query = `
+		INSERT INTO mst_custaccess (cust_id, custaccess_id, custaccesstype_id, custaccess_code, _createby) VALUES (?, ?, ?, ?, '5effbb0a0f7d1')
+	`
+	_, err = c.Connection.Exec(query, cust_id, custaccess_id, "WA", phonenumber)
+	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 

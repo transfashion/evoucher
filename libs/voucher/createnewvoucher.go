@@ -28,12 +28,15 @@ func (v *VoucherDB) CreateNewVoucher(voubatch_id string, phonenumber string, cus
 	row := v.Connection.QueryRow(query, temp_vou_id, voubatch_id)
 	err = row.Scan(&vou_no, &vou_value, &voutype_id, &rndmin, &rndmax, &voubatch_code)
 	if err == sql.ErrNoRows {
+		log.Println("error saat membuat draft voucher")
 		return nil, fmt.Errorf("error saat membuat draft voucher")
 	} else if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
 	if vou_no > 9999 {
+		log.Println("jumlah quota voucher sudah mencapai batas")
 		return nil, fmt.Errorf("jumlah quota voucher sudah mencapai batas")
 	}
 
@@ -81,10 +84,17 @@ func (v *VoucherDB) CreateNewVoucher(voubatch_id string, phonenumber string, cus
 	log.Println("updating tempvoucher", temp_vou_id, voucher_id)
 	_, err = v.Connection.Exec(query, voucher_id, ran, parity, code, phonenumber, customername, temp_vou_id)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
 	voucher.Id = voucher_id
 
-	return voucher, nil
+	vou, err := v.GetVoucher(voucher.Id)
+	if err != nil {
+		log.Println("gagal mendapatkan kembali data voucher")
+		return nil, err
+	}
+
+	return vou, nil
 }

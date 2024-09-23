@@ -11,6 +11,7 @@ type CustomerDB struct {
 }
 
 type Customer struct {
+	Id          string
 	PhoneNumber string
 	Name        string
 	Gender      string

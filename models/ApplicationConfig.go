@@ -1,6 +1,10 @@
 package models
 
 type ApplicationConfig struct {
+	Logging struct {
+		Enabled bool   `yaml:"enabled"`
+		Output  string `yaml:"output"`
+	} `yaml:"logging"`
 	QiscusConfig struct {
 		BaseUrl string `yaml:"baseurl"`
 		AppCode string `yaml:"appcode"`
@@ -19,4 +23,7 @@ type ApplicationConfig struct {
 			Port     int    `yaml:"port"`
 		} `yaml:"database"`
 	} `yaml:"kalista"`
+	Binaries struct {
+		Inkscape string `yaml:"inkscape"`
+	} `yaml:"binaries"`
 }

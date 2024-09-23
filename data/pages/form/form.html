@@ -1,12 +1,22 @@
 {{template "layoutdasar" .}}
 
 {{define "pagecontent"}}
+
+	{{if .Data.UseActivationCode}}
 	<h1>Voucher Activation</h1> 
+	{{else}}
+	<h1>Voucher Request</h1> 
+	{{end}}
+
+
+	<div>{{.Data.Description}}</div>
 	<form method="post">
 		<input type="hidden" name="csrf_token" value="{{.CsrfToken}}">
 		<input type="hidden" name="request_id" value="{{.Data.RequestId}}">
 		<input type="hidden" name="room_id" value="{{.Data.RoomId}}">
 		<input type="hidden" name="phone" value="{{.Data.PhoneNumber}}">
+		<input type="hidden" name="cust_id" value="{{.Data.CustId}}">
+		<input type="hidden" name="use_activation_code" value="{{.Data.UseActivationCode}}">
 
 		<div id="evoucher-phone" class="dw-input-textbox simple-textbox" disabled>
 			<input type="text" id="phonenum" name="phonenum" onkeyup="this.setAttribute('value', this.value);" value="{{.Data.PhoneNumber}}" maxlength="20" readonly disabled>					
@@ -35,15 +45,21 @@
 		<span class="form-input-error">Silahkan isi dahulu data gender anda</span>
 		{{end}}
 
+
+		{{if .Data.UseActivationCode}}
+
 		<div style="margin-top: 20px;">Get 6 digit Code from cashier</div>
 		<div id="evoucher-code" class="dw-input-textbox simple-textbox" style="width: 200px; margin-top: 0;">
 			<input type="text" id="name" name="code" onkeyup="this.setAttribute('value', this.value);" value="{{.Data.Code}}" maxlength="6" inputmode="numeric">					
 			<label for="code">Code</label>
 		</div>
 		{{if .Data.CodeInvalid }}
-		
 		<span class="form-input-error">{{ .Data.CodeInvalidMessage }}</span>
 		{{end}}
+	
+		{{ end }}
+
+
 
 		<div style="margin-top: 20px">
 			<input class="button-black" type="submit" value="submit">

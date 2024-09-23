@@ -9,6 +9,7 @@ import (
 	"github.com/fgtago/fgweb/appsmodel"
 	"github.com/fgtago/fgweb/defaulthandlers"
 	"github.com/transfashion/evoucher/libs"
+	"github.com/transfashion/evoucher/libs/helper"
 )
 
 type ResultPageData struct {
@@ -41,7 +42,14 @@ func (hdr *Handler) Result(w http.ResponseWriter, r *http.Request) {
 		log.Printf("voucher %s not found", ld.VouId)
 	}
 
-	voucherlik := fmt.Sprintf("%sview/%s", basehref, voucher.Id)
+	vou_id_url, err := helper.Encrypt(voucher.Id)
+	if err != nil {
+		log.Println("gagal ekripsi voucher")
+		FormError(w, r, fmt.Errorf("gagal medapapatkan kode enkripsi voucher"))
+		return
+	}
+
+	voucherlik := fmt.Sprintf("%sview/%s", basehref, vou_id_url)
 
 	//fmt.Println(voucher)
 	data := &ResultPageData{

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -53,15 +54,34 @@ func main() {
 	libs.Load(ws)
 
 	// set output log
-	logfilepath := filepath.Join(ws.RootDir, "data", "logs", "application.log")
-	f, err := os.OpenFile(logfilepath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-		os.Exit(1)
+	if appcfg.Logging.Enabled {
+		log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
+		if appcfg.Logging.Output != "" {
+			logfilepath := filepath.Join(ws.RootDir, "data", "logs", appcfg.Logging.Output)
+			fmt.Println("Logging to", logfilepath)
+			f, err := os.OpenFile(logfilepath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+			if err != nil {
+				log.Fatalf("error opening file: %v", err)
+				os.Exit(1)
+			}
+			defer f.Close()
+			log.SetOutput(f)
+		} else {
+			fmt.Println("log to screen")
+		}
+	} else {
+		fmt.Println("Logging is disabled")
+		log.SetOutput(io.Discard)
 	}
-	defer f.Close()
 
-	log.SetOutput(f)
+	// logfilepath := filepath.Join(ws.RootDir, "data", "logs", "application.log")
+	// f, err := os.OpenFile(logfilepath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	log.Fatalf("error opening file: %v", err)
+	// 	os.Exit(1)
+	// }
+	// defer f.Close()
+	// log.SetOutput(f)
 
 	// jalankan service webserver
 	port := ws.Configuration.Port
