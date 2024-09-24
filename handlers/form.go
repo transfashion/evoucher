@@ -155,7 +155,6 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			var voucherlik string
 			if voucher != nil {
 				// voucher telah dibuat, redirect ke halaman preview voucher
 				log.Println("voucher already created", voucher.Id)
@@ -169,7 +168,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-				voucherlik = fmt.Sprintf("%sview/%s", basehref, vou_id_url)
+				voucherlik := fmt.Sprintf("%sview/%s", basehref, vou_id_url)
 				_, errqcs := qcs.SendMessage(data.RoomId, fmt.Sprintf("Anda telah mempunyai voucher ini dari request sebelumnya. Silakan klik link %s untuk melihat voucher anda", voucherlik))
 				if errqcs != nil {
 					log.Println("gagal kirim pesan via qiscus")
@@ -238,6 +237,15 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 				FormError(w, r, err)
 				return
 			}
+
+			vou_id_url, err := helper.Encrypt(voucher.Id)
+			if err != nil {
+				log.Println("gagal ekripsi voucher")
+				FormError(w, r, fmt.Errorf("gagal medapapatkan kode enkripsi voucher"))
+				return
+			}
+
+			voucherlik := fmt.Sprintf("%sview/%s", basehref, vou_id_url)
 
 			// kirimkan informasi ke whatsapp untuk kode voucher
 			// send image voucher
