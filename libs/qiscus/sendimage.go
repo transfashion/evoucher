@@ -26,7 +26,7 @@ func (q *Qiscus) SendImage(room_id string, imagelink string, message string) (st
 		}
 	}`, sender, message, room_id, imagelink, message)
 
-	log.Println(data)
+	log.Println("Send image via qiscus", imagelink)
 	payload := strings.NewReader(data)
 
 	client := &http.Client{}

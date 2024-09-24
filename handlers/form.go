@@ -155,6 +155,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			var voucherlik string
 			if voucher != nil {
 				// voucher telah dibuat, redirect ke halaman preview voucher
 				log.Println("voucher already created", voucher.Id)
@@ -168,7 +169,7 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-				voucherlik := fmt.Sprintf("%sview/%s", basehref, vou_id_url)
+				voucherlik = fmt.Sprintf("%sview/%s", basehref, vou_id_url)
 				_, errqcs := qcs.SendMessage(data.RoomId, fmt.Sprintf("Anda telah mempunyai voucher ini dari request sebelumnya. Silakan klik link %s untuk melihat voucher anda", voucherlik))
 				if errqcs != nil {
 					log.Println("gagal kirim pesan via qiscus")
@@ -239,12 +240,11 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// kirimkan informasi ke whatsapp untuk kode voucher
-
 			// send image voucher
-			//imglink := "https://evoucher.transfashionindonesia.com/testqr.svg"
 			imglink := fmt.Sprintf("%svouchers/%s.jpg", basehref, voucher.Id)
 			log.Println("sending image voucher via qiscus to", data.PhoneNumber, data.RoomId, imglink)
-			res, err := qcs.SendImage(data.RoomId, imglink, "Tunjukkan voucher ini saat bertransaksi untuk mendapatkan potongan harga senilai voucher. (Syarat dan ketentuan berlaku)")
+			msg := fmt.Sprintf("Tunjukkan voucher ini saat bertransaksi untuk mendapatkan potongan harga senilai voucher. (Syarat dan ketentuan berlaku) %s", voucherlik)
+			res, err := qcs.SendImage(data.RoomId, imglink, msg)
 			if err != nil {
 				log.Println("gagal mengirim image QR voucher via Qiscus")
 				FormError(w, r, err)
@@ -257,18 +257,11 @@ func (hdr *Handler) Form(w http.ResponseWriter, r *http.Request) {
 			// basehref = "https://evoucher.transfashionindonesia.com/"
 
 			log.Println("sending message via qiscus to", data.PhoneNumber, data.RoomId)
-			vou_id_url, err := helper.Encrypt(voucher.Id)
-			if err != nil {
-				log.Println("gagal ekripsi voucher")
-				FormError(w, r, fmt.Errorf("gagal medapapatkan kode enkripsi voucher"))
-				return
-			}
 
 			log.Println("sending message via qiscus to", data.PhoneNumber, data.RoomId)
-			voucherlik := fmt.Sprintf("%sview/%s", basehref, vou_id_url)
 			tmp := "Hai kak %s, selamat anda mendapatkan voucher potongan harga senilai %s. Untuk melihat dan menggunakan voucher ini, bisa juga dengan klik link %s. Terimakasih."
 			vouvalue := humanize.Comma(int64(voucher.Value))
-			msg := fmt.Sprintf(tmp, data.Name, vouvalue, voucherlik)
+			msg = fmt.Sprintf(tmp, data.Name, vouvalue, voucherlik)
 			res, err = qcs.SendMessage(data.RoomId, msg)
 			if err != nil {
 				log.Println("gagal mengirim message via Qiscus")
